@@ -11,6 +11,8 @@ _BACKEND_DIRS = [
     "backend/configuration",
     "backend/authentication",
     "backend/user-management",
+    "data-platform/data-ingestion",
+    "backend/search-service",
     "backend/api-gateway",
 ]
 

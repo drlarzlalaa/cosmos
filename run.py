@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Start the COSMOS API gateway (Phase 1: accounts + static frontend).
+"""Start the COSMOS API gateway (see server.PHASE for what's live).
 
 Module directories under backend/ and storage/ use hyphens to match
 ARCHITECTURE.md's naming (api-gateway, relational-database, ...), which
@@ -26,7 +26,7 @@ import settings as settings_module  # noqa: E402
 def main():
     settings = settings_module.Settings()
     httpd = server.build_server(settings)
-    print("COSMOS Phase 1 gateway listening on http://%s:%d/" % (settings.host, settings.port))
+    print("COSMOS Phase %d gateway listening on http://%s:%d/" % (server.PHASE, settings.host, settings.port))
     print("  -> open http://%s:%d/login/ to register or sign in" % (settings.host, settings.port))
     try:
         httpd.serve_forever()

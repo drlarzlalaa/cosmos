@@ -1,21 +1,23 @@
-"""COSMOS API gateway - Phase 1: accounts + static frontend only.
-Stdlib http.server, no framework installed on the build machine.
-Routing is a short explicit table, not a generic router, because the
-route count is still small; revisit if/when later phases add many
-more endpoints.
+"""COSMOS API gateway - Phase 1 (accounts) + Phase 2 (research
+library: data-ingestion + search-service). Stdlib http.server, no
+framework installed on the build machine. Routing is a short explicit
+table, not a generic router, because the route count is still small;
+revisit if/when later phases add many more endpoints.
 """
 import json
 import mimetypes
 import os
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 
 import auth
 import db
+import ingestion
+import search
 import users
 
-PHASE = 1
+PHASE = 2
 
 
 def make_handler(settings):
@@ -25,6 +27,9 @@ def make_handler(settings):
         # here (rather than once at server start-up) keeps every
         # request on a connection owned by the thread handling it.
         return users.UserStore(db.get_connection(settings.db_path))
+
+    def current_source_store():
+        return ingestion.SourceStore(db.get_connection(settings.db_path))
 
     class Handler(BaseHTTPRequestHandler):
         server_version = "COSMOS/0.1"
@@ -62,7 +67,8 @@ def make_handler(settings):
             return current_store().get_by_id(payload.get("user_id"))
 
         def do_GET(self):
-            path = urlparse(self.path).path
+            parsed = urlparse(self.path)
+            path = parsed.path
             if path == "/api/health":
                 return self._send_json(200, {"status": "ok", "phase": PHASE})
             if path == "/api/users/me":
@@ -70,6 +76,10 @@ def make_handler(settings):
                 if user is None:
                     return self._send_json(401, {"error": "not authenticated"})
                 return self._send_json(200, {"user": user})
+            if path == "/api/sources":
+                return self._handle_search_sources(parse_qs(parsed.query))
+            if path.startswith("/api/sources/"):
+                return self._handle_get_source(path[len("/api/sources/"):])
             if path.startswith("/api/"):
                 return self._send_json(404, {"error": "not found"})
             return self._serve_static(path)
@@ -85,6 +95,8 @@ def make_handler(settings):
                 return self._handle_register(body)
             if path == "/api/auth/login":
                 return self._handle_login(body)
+            if path == "/api/sources":
+                return self._handle_create_source(body)
             return self._send_json(404, {"error": "not found"})
 
         def _handle_register(self, body):
@@ -105,6 +117,37 @@ def make_handler(settings):
                 return self._send_json(401, {"error": str(exc)})
             token = auth.issue_token({"user_id": user["id"]}, settings.secret_key, settings.token_ttl_seconds)
             return self._send_json(200, {"user": user, "token": token})
+
+        def _handle_create_source(self, body):
+            user = self._current_user()
+            if user is None:
+                return self._send_json(401, {"error": "not authenticated"})
+            try:
+                source = current_source_store().create_source(
+                    title=body.get("title", ""), abstract=body.get("abstract", ""),
+                    evidence_status=body.get("evidence_status", ""), submitted_by=user["id"],
+                    url=body.get("url"), authors=body.get("authors"),
+                )
+            except ingestion.IngestionError as exc:
+                return self._send_json(400, {"error": str(exc)})
+            return self._send_json(201, {"source": source})
+
+        def _handle_search_sources(self, query_params):
+            q = (query_params.get("q") or [""])[0]
+            evidence_status = (query_params.get("evidence_status") or [None])[0]
+            all_sources = current_source_store().list_all()
+            results = search.search_sources(all_sources, query=q, evidence_status=evidence_status)
+            return self._send_json(200, {"sources": results})
+
+        def _handle_get_source(self, raw_id):
+            try:
+                source_id = int(raw_id)
+            except ValueError:
+                return self._send_json(404, {"error": "not found"})
+            source = current_source_store().get_by_id(source_id)
+            if source is None:
+                return self._send_json(404, {"error": "not found"})
+            return self._send_json(200, {"source": source})
 
         def _serve_static(self, path):
             if path == "/":

@@ -80,6 +80,47 @@ class ApiGatewayTests(unittest.TestCase):
             self.assertEqual(resp.status, 200)
             self.assertIn(b"COSMOS", resp.read())
 
+    def _register(self, email):
+        _, data = _request("POST", self.base + "/api/auth/register", {
+            "email": email, "password": "password123", "display_name": "Researcher",
+        })
+        return data["token"]
+
+    def test_create_source_requires_auth(self):
+        status, data = _request("POST", self.base + "/api/sources", {
+            "title": "X", "abstract": "Y", "evidence_status": "speculative",
+        })
+        self.assertEqual(status, 401)
+
+    def test_create_and_search_source(self):
+        token = self._register("source-author@example.com")
+        status, data = _request("POST", self.base + "/api/sources", {
+            "title": "Gravitational lensing confirms general relativity",
+            "abstract": "Light bends around massive bodies, observed during eclipses.",
+            "evidence_status": "established",
+        }, token=token)
+        self.assertEqual(status, 201)
+        source_id = data["source"]["id"]
+
+        status, data = _request("GET", self.base + "/api/sources/%d" % source_id)
+        self.assertEqual(status, 200)
+        self.assertEqual(data["source"]["evidence_status"], "established")
+
+        status, data = _request("GET", self.base + "/api/sources?q=lensing")
+        self.assertEqual(status, 200)
+        self.assertTrue(any(s["id"] == source_id for s in data["sources"]))
+
+    def test_create_source_rejects_bad_evidence_status(self):
+        token = self._register("bad-status@example.com")
+        status, data = _request("POST", self.base + "/api/sources", {
+            "title": "X", "abstract": "Y", "evidence_status": "definitely-true",
+        }, token=token)
+        self.assertEqual(status, 400)
+
+    def test_get_unknown_source_404(self):
+        status, data = _request("GET", self.base + "/api/sources/999999")
+        self.assertEqual(status, 404)
+
 
 if __name__ == "__main__":
     unittest.main()

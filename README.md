@@ -20,25 +20,30 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for the full planned structure
 a knowledge graph, and the validation pipeline that keeps discoveries
 honest) and [ROADMAP.md](ROADMAP.md) for the build order.
 
-## Status: Phase 1 of 8
+## Status: Phase 2 of 8 (core)
 
 This is a young project. What's real today:
 
 - Accounts: register / log in, password hashing (PBKDF2), signed
   session tokens — all stdlib, no third-party auth library.
+- A research library: add a source (title, abstract, optional
+  url/authors) tagged `established` / `open_question` / `speculative`
+  — enforced server-side, not just asserted in this README — and
+  search it (`backend/search-service`, pure-Python token scoring, no
+  SQLite FTS5 dependency).
 - A small API gateway (`backend/api-gateway`) serving both the JSON
   API and the static frontend.
 - A sqlite-backed `storage/relational-database`.
-- A frontend shell: sign-in/registration, a dashboard (listing the
-  research engines that don't exist yet, honestly labelled "not yet
-  built"), and a settings page.
+- A frontend shell: sign-in/registration, a dashboard, a settings
+  page, and the research library's search/browse/add UI.
 
 Everything else in `ARCHITECTURE.md` — the eight research engines, the
 AI intelligence layer, the knowledge graph, simulation, discovery
-reporting, and so on — exists in this repo only as a scaffolded
-directory with a placeholder `README.md` naming its purpose and the
-phase it's planned for. Nothing there is implemented yet; don't take
-the directory tree as a claim that it is.
+reporting, and most of `data-platform` beyond basic ingestion — exists
+in this repo only as a scaffolded directory with a placeholder
+`README.md` naming its purpose and the phase it's planned for. Nothing
+there is implemented yet; don't take the directory tree as a claim
+that it is.
 
 ## Quickstart
 
@@ -47,7 +52,7 @@ everything here is standard library).
 
 ```sh
 python3 run.py
-# COSMOS Phase 1 gateway listening on http://127.0.0.1:8080/
+# COSMOS Phase 2 gateway listening on http://127.0.0.1:8080/
 # -> open http://127.0.0.1:8080/login/ to register or sign in
 ```
 
