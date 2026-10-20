@@ -121,6 +121,24 @@ class ApiGatewayTests(unittest.TestCase):
         status, data = _request("GET", self.base + "/api/sources/999999")
         self.assertEqual(status, 404)
 
+    def test_gravity_calculation_no_auth_required(self):
+        status, data = _request("POST", self.base + "/api/engines/gravity", {
+            "calculation": "force", "inputs": {"mass1_kg": 1000, "mass2_kg": 1000, "distance_m": 1},
+        })
+        self.assertEqual(status, 200)
+        self.assertEqual(data["evidence_status"], "established")
+
+    def test_gravity_unknown_calculation_rejected(self):
+        status, data = _request("POST", self.base + "/api/engines/gravity", {
+            "calculation": "teleportation", "inputs": {},
+        })
+        self.assertEqual(status, 400)
+
+    def test_gravity_calculations_listing(self):
+        status, data = _request("GET", self.base + "/api/engines/gravity")
+        self.assertEqual(status, 200)
+        self.assertIn("force", data["calculations"])
+
 
 if __name__ == "__main__":
     unittest.main()

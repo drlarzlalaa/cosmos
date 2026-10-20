@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COSMOS — Physics Explorer</title>
+<link rel="stylesheet" href="/shared/style.css">
+<style>
+.badge { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .03em; border-radius: 999px; padding: 3px 10px;
+  background: rgba(0,200,150,.15); color: #00c896; }
+.calc-group { display: none; }
+.calc-group.active { display: block; }
+label { font-size: 13px; color: var(--muted); }
+.result-box { margin-top: 14px; padding: 14px; border-radius: 10px; background: #0d1220;
+  border: 1px solid var(--border); font-family: monospace; font-size: 15px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <strong>COSMOS</strong>
+    <a href="/dashboard/">&larr; Back to dashboard</a>
+  </nav>
+
+  <div class="panel">
+    <h2>Physics engine — gravity <span class="badge">established</span></h2>
+    <p class="muted">
+      Closed-form Newtonian gravity: Newton's law of universal gravitation and
+      Kepler's third law (two-body approximation). Every result here is
+      textbook physics, not a hypothesis or a discovery - the platform's
+      other two statuses (open question, speculative) don't apply to a
+      formula this well established.
+    </p>
+
+    <label for="calc-select">Calculation</label>
+    <select id="calc-select"></select>
+
+    <div id="calc-forms"></div>
+
+    <div class="error" id="calc-error"></div>
+    <button id="calc-submit">Compute</button>
+    <div class="result-box" id="result" style="display:none"></div>
+  </div>
+</div>
+<script type="module" src="explorer.js"></script>
+</body>
+</html>

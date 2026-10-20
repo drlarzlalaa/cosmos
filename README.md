@@ -20,7 +20,7 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for the full planned structure
 a knowledge graph, and the validation pipeline that keeps discoveries
 honest) and [ROADMAP.md](ROADMAP.md) for the build order.
 
-## Status: Phase 2 of 8 (core)
+## Status: Phase 2 of 8 (core), plus one early Phase 3 slice
 
 This is a young project. What's real today:
 
@@ -31,15 +31,24 @@ This is a young project. What's real today:
   — enforced server-side, not just asserted in this README — and
   search it (`backend/search-service`, pure-Python token scoring, no
   SQLite FTS5 dependency).
+- A physics engine calculator (`engines/physics-engine/gravity`):
+  closed-form Newtonian gravity — force, escape velocity, orbital
+  period, potential energy — tried live at `/physics-explorer/`. Built
+  early, out of strict roadmap order, to prove the engine → API →
+  frontend pipeline works end to end with a real engine. It's one
+  calculation module, not "the physics engine done" — see
+  [ROADMAP.md](ROADMAP.md).
 - A small API gateway (`backend/api-gateway`) serving both the JSON
   API and the static frontend.
 - A sqlite-backed `storage/relational-database`.
 - A frontend shell: sign-in/registration, a dashboard, a settings
-  page, and the research library's search/browse/add UI.
+  page, the research library's search/browse/add UI, and the physics
+  explorer.
 
-Everything else in `ARCHITECTURE.md` — the eight research engines, the
-AI intelligence layer, the knowledge graph, simulation, discovery
-reporting, and most of `data-platform` beyond basic ingestion — exists
+Everything else in `ARCHITECTURE.md` — the rest of the eight research
+engines, the AI intelligence layer, the knowledge graph, simulation,
+discovery reporting, and most of `data-platform` beyond basic
+ingestion — exists
 in this repo only as a scaffolded directory with a placeholder
 `README.md` naming its purpose and the phase it's planned for. Nothing
 there is implemented yet; don't take the directory tree as a claim

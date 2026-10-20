@@ -1,5 +1,7 @@
 """COSMOS API gateway - Phase 1 (accounts) + Phase 2 (research
-library: data-ingestion + search-service). Stdlib http.server, no
+library: data-ingestion + search-service) + an early Phase 3 slice
+(engines/physics-engine/gravity, started out of strict roadmap order
+to prove the engine pipeline end to end). Stdlib http.server, no
 framework installed on the build machine. Routing is a short explicit
 table, not a generic router, because the route count is still small;
 revisit if/when later phases add many more endpoints.
@@ -13,6 +15,7 @@ from urllib.parse import urlparse, parse_qs
 
 import auth
 import db
+import gravity
 import ingestion
 import search
 import users
@@ -80,6 +83,11 @@ def make_handler(settings):
                 return self._handle_search_sources(parse_qs(parsed.query))
             if path.startswith("/api/sources/"):
                 return self._handle_get_source(path[len("/api/sources/"):])
+            if path == "/api/engines/gravity":
+                return self._send_json(200, {"calculations": {
+                    name: {"params": spec["params"], "unit": spec["unit"], "formula": spec["formula"]}
+                    for name, spec in gravity.CALCULATIONS.items()
+                }})
             if path.startswith("/api/"):
                 return self._send_json(404, {"error": "not found"})
             return self._serve_static(path)
@@ -97,6 +105,8 @@ def make_handler(settings):
                 return self._handle_login(body)
             if path == "/api/sources":
                 return self._handle_create_source(body)
+            if path == "/api/engines/gravity":
+                return self._handle_gravity(body)
             return self._send_json(404, {"error": "not found"})
 
         def _handle_register(self, body):
@@ -148,6 +158,15 @@ def make_handler(settings):
             if source is None:
                 return self._send_json(404, {"error": "not found"})
             return self._send_json(200, {"source": source})
+
+        def _handle_gravity(self, body):
+            # Public, unauthenticated: this is a deterministic
+            # closed-form physics calculation, not user data.
+            try:
+                result = gravity.compute(body.get("calculation", ""), body.get("inputs", {}))
+            except gravity.GravityError as exc:
+                return self._send_json(400, {"error": str(exc)})
+            return self._send_json(200, result)
 
         def _serve_static(self, path):
             if path == "/":

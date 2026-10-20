@@ -18,9 +18,11 @@ document.getElementById("logout").addEventListener("click", () => {
 
 // Static for now - Phase 3/5/6/7 wire these to real engines/* modules
 // as they land (see ROADMAP.md). Listed here so the dashboard honestly
-// reflects what exists vs. what's planned.
+// reflects what exists vs. what's planned. Physics is the one
+// exception: gravity.py is real, built early out of roadmap order to
+// prove the engine pipeline - see ROADMAP.md's "early Phase 3 slice".
 const ENGINES = [
-  { name: "Physics engine", phase: 3 },
+  { name: "Physics engine", phase: 3, status: "gravity calculations live", href: "/physics-explorer/" },
   { name: "Mathematics engine", phase: 3 },
   { name: "Cosmic data engine", phase: 3 },
   { name: "Consciousness engine", phase: 6 },
@@ -34,6 +36,10 @@ const grid = document.getElementById("engine-grid");
 for (const engine of ENGINES) {
   const card = document.createElement("div");
   card.className = "card";
-  card.innerHTML = `<div>${engine.name}</div><span class="phase">Phase ${engine.phase} — not yet built</span>`;
+  const label = engine.status || "not yet built";
+  const body = engine.href
+    ? `<a href="${engine.href}">${engine.name}</a>`
+    : `<div>${engine.name}</div>`;
+  card.innerHTML = `${body}<span class="phase">Phase ${engine.phase} — ${label}</span>`;
   grid.appendChild(card);
 }

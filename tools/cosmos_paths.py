@@ -13,6 +13,7 @@ _BACKEND_DIRS = [
     "backend/user-management",
     "data-platform/data-ingestion",
     "backend/search-service",
+    "engines/physics-engine/gravity",
     "backend/api-gateway",
 ]
 

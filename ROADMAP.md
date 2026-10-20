@@ -7,7 +7,7 @@ for what each module is for.
 |---|---|---|---|
 | 1 | Frontend, backend, database, authentication | Establish the platform foundation | **Done** — accounts (register/login), a stdlib API gateway, sqlite storage, and a dashboard/settings shell |
 | 2 | Research library, data ingestion, scientific search | Collect and organise reliable knowledge | **Core done** — sources (title/abstract/evidence_status), search, and a research-library page; other `data-platform/*` leaves (connectors, provenance, registries, ...) not started |
-| 3 | Mathematics engine, physics engine, simulations | Test established scientific models | Not started |
+| 3 | Mathematics engine, physics engine, simulations | Test established scientific models | **One slice early** — `engines/physics-engine/gravity` (closed-form Newtonian gravity) is real; math engine, cosmic-data engine, and simulation are not started |
 | 4 | Hypothesis management, statistical analysis, validation | Build a reliable hypothesis-testing workflow | Not started |
 | 5 | AI research agents, literature analysis, model comparison | Automate parts of scientific investigation | Not started |
 | 6 | Consciousness, causality, existence, and spiritual research | Expand into interdisciplinary questions | Not started |
@@ -42,9 +42,29 @@ for what each module is for.
   Phase 2 picked the minimum slice that makes the research-library
   real end to end, not the full module list.
 
+## Early Phase 3 slice: engines/physics-engine/gravity
+
+Built out of strict order (before Phase 2's remaining `data-platform`
+leaves, and before mathematics-engine or simulation) to prove the
+engine -> API -> frontend pipeline works with a real engine, not just
+the research-library's data model. Scope: Newton's law of universal
+gravitation and Kepler's third law (two-body approximation) - force,
+escape velocity, orbital period, potential energy. Every result is
+tagged `evidence_status: "established"`, since closed-form textbook
+physics is exactly what that tag means. Exposed at
+`GET`/`POST /api/engines/gravity` and tried live at `/physics-explorer/`.
+Tested against known values (Earth's escape velocity, Earth's orbital
+period) in `tests/test_gravity.py`.
+
+This is **one calculation module, not "the physics engine done"** -
+relativity, quantum-mechanics, electromagnetism, thermodynamics, and
+cosmology (physics-engine's other five leaves), the whole
+mathematics-engine, cosmic-data-engine, and simulation/ are all still
+scaffolded.
+
 ## Picking up Phase 3+
 
-Each later phase should follow the same pattern as Phases 1-2: real,
-tested, stdlib-first code for the modules in scope, replacing their
-placeholder READMEs; everything else stays a scaffold until its own
-phase arrives.
+Each later phase should follow the same pattern as Phases 1-2 (and
+this early slice): real, tested, stdlib-first code for the modules in
+scope, replacing their placeholder READMEs; everything else stays a
+scaffold until its own phase arrives.
