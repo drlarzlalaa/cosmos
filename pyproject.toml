@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cosmos"
+version = "0.1.0"
+description = "COSMOS - a universal law discovery platform: research engines, hypothesis validation, and a knowledge graph that keeps established knowledge, open questions, and speculative ideas clearly separated"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "drlarzlalaa" }]
+keywords = ["physics", "research platform", "hypothesis testing", "knowledge graph", "open science"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = []
+
+[tool.setuptools]
+packages = []

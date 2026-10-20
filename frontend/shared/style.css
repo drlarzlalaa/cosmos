@@ -1,0 +1,93 @@
+:root {
+  color-scheme: dark;
+  --bg: #0b0e14;
+  --panel: #121725;
+  --border: rgba(255, 255, 255, 0.12);
+  --text: #e6e9f0;
+  --muted: #8b93a7;
+  --accent: #6aa6ff;
+  --danger: #ff6a6a;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.wrap {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+}
+
+h1, h2 { margin-top: 0; }
+
+.muted { color: var(--muted); }
+
+input {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  margin: 6px 0 14px;
+  background: #0d1220;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+button {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: #0b0e14;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.error { color: var(--danger); margin: 8px 0; min-height: 1.2em; }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  background: #0d1220;
+}
+
+.card .phase {
+  display: inline-block;
+  font-size: 12px;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 8px;
+  margin-top: 8px;
+}
+
+a { color: var(--accent); text-decoration: none; }
+nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }

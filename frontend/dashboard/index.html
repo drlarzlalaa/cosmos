@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COSMOS — Dashboard</title>
+<link rel="stylesheet" href="/shared/style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <div>
+      <strong>COSMOS</strong>
+      <span class="muted">Universal Law Discovery System</span>
+    </div>
+    <div>
+      <span class="muted" id="whoami"></span>
+      &nbsp;
+      <a href="/settings/">Settings</a>
+      &nbsp;
+      <button class="secondary" id="logout">Sign out</button>
+    </div>
+  </nav>
+
+  <div class="panel">
+    <h2>Welcome</h2>
+    <p class="muted">
+      COSMOS keeps three things clearly separated as it investigates the laws
+      of nature: <strong>established knowledge</strong> (strong, reproducible
+      evidence), <strong>open scientific questions</strong> (researchable, but
+      unresolved), and <strong>speculative hypotheses</strong> (not yet
+      supported by evidence). This is currently a <strong>Phase 1</strong>
+      build — accounts and the platform shell. The research engines below
+      are scaffolded in the repository but not yet implemented.
+    </p>
+  </div>
+
+  <h2>Research engines</h2>
+  <div class="card-grid" id="engine-grid"></div>
+</div>
+<script type="module" src="dashboard.js"></script>
+</body>
+</html>
