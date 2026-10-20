@@ -29,3 +29,21 @@ CREATE TABLE IF NOT EXISTS sources (
     submitted_by    INTEGER NOT NULL REFERENCES users(id),
     created_at      TEXT NOT NULL
 );
+
+-- data-platform/data-provenance: a result an engine actually computed,
+-- not a user's own claim. `inputs_json` + `engine` + `calculation` let
+-- anyone re-run the same computation and get the same number; `result`
+-- is never taken from the client - data-provenance/provenance.py always
+-- recomputes it server-side via the named engine before storing it.
+CREATE TABLE IF NOT EXISTS computed_findings (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    engine          TEXT NOT NULL,
+    calculation     TEXT NOT NULL,
+    inputs_json     TEXT NOT NULL,
+    result          REAL NOT NULL,
+    unit            TEXT NOT NULL,
+    formula         TEXT NOT NULL,
+    evidence_status TEXT NOT NULL,
+    submitted_by    INTEGER NOT NULL REFERENCES users(id),
+    created_at      TEXT NOT NULL
+);

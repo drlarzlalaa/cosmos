@@ -6,7 +6,7 @@ for what each module is for.
 | Phase | Components | Objective | Status |
 |---|---|---|---|
 | 1 | Frontend, backend, database, authentication | Establish the platform foundation | **Done** — accounts (register/login), a stdlib API gateway, sqlite storage, and a dashboard/settings shell |
-| 2 | Research library, data ingestion, scientific search | Collect and organise reliable knowledge | **Core done** — sources (title/abstract/evidence_status), search, and a research-library page; other `data-platform/*` leaves (connectors, provenance, registries, ...) not started |
+| 2 | Research library, data ingestion, scientific search | Collect and organise reliable knowledge | **Core done** — sources (title/abstract/evidence_status), search, a research-library page, and data-provenance tying engine output back into the same store; other `data-platform/*` leaves (connectors, registries, ...) not started |
 | 3 | Mathematics engine, physics engine, simulations | Test established scientific models | **One slice early** — `engines/physics-engine/gravity` (closed-form Newtonian gravity) is real; math engine, cosmic-data engine, and simulation are not started |
 | 4 | Hypothesis management, statistical analysis, validation | Build a reliable hypothesis-testing workflow | Not started |
 | 5 | AI research agents, literature analysis, model comparison | Automate parts of scientific investigation | Not started |
@@ -36,11 +36,15 @@ for what each module is for.
   module's own README for why.
 - `frontend/research-library`: search/browse sources with a
   color-coded evidence badge; signed-in users can add one.
+- `data-platform/data-provenance`: a `computed_findings` table and
+  `ProvenanceStore`, storing a result an engine actually computed - the
+  API gateway always recomputes server-side before saving, a client's
+  own claimed `result` is never trusted or stored.
 - The rest of `data-platform/*` (scientific-data-connectors,
   data-validation, metadata-management, the various `*-registry`
-  leaves, data-provenance) is still scaffolded, not implemented -
-  Phase 2 picked the minimum slice that makes the research-library
-  real end to end, not the full module list.
+  leaves) is still scaffolded, not implemented - Phase 2 picked the
+  minimum slice that makes the research-library and provenance real
+  end to end, not the full module list.
 
 ## Early Phase 3 slice: engines/physics-engine/gravity
 
@@ -54,7 +58,9 @@ tagged `evidence_status: "established"`, since closed-form textbook
 physics is exactly what that tag means. Exposed at
 `GET`/`POST /api/engines/gravity` and tried live at `/physics-explorer/`.
 Tested against known values (Earth's escape velocity, Earth's orbital
-period) in `tests/test_gravity.py`.
+period) in `tests/test_gravity.py`. A result can be saved as a
+provenance-tracked finding (`POST /api/findings`) - see
+`data-platform/data-provenance` above.
 
 This is **one calculation module, not "the physics engine done"** -
 relativity, quantum-mechanics, electromagnetism, thermodynamics, and

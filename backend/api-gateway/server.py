@@ -1,5 +1,6 @@
 """COSMOS API gateway - Phase 1 (accounts) + Phase 2 (research
-library: data-ingestion + search-service) + an early Phase 3 slice
+library: data-ingestion + search-service, plus data-provenance tying
+engine output back into it) + an early Phase 3 slice
 (engines/physics-engine/gravity, started out of strict roadmap order
 to prove the engine pipeline end to end). Stdlib http.server, no
 framework installed on the build machine. Routing is a short explicit
@@ -17,10 +18,23 @@ import auth
 import db
 import gravity
 import ingestion
+import provenance
 import search
 import users
 
 PHASE = 2
+
+# Maps a provenance "engine" name to its compute(calculation, inputs)
+# function. The only engine so far; add the next one here when it
+# lands rather than special-casing it in the handler methods below.
+ENGINE_COMPUTE = {
+    "physics-engine/gravity": gravity.compute,
+}
+# Bad-input errors each engine's compute() can raise, as a single
+# tuple so the findings handler can catch "this engine rejected its
+# input" (-> 400) without also swallowing real bugs (-> still 500).
+# Extend this tuple when a new engine is added to ENGINE_COMPUTE.
+ENGINE_ERRORS = (gravity.GravityError,)
 
 
 def make_handler(settings):
@@ -33,6 +47,9 @@ def make_handler(settings):
 
     def current_source_store():
         return ingestion.SourceStore(db.get_connection(settings.db_path))
+
+    def current_provenance_store():
+        return provenance.ProvenanceStore(db.get_connection(settings.db_path))
 
     class Handler(BaseHTTPRequestHandler):
         server_version = "COSMOS/0.1"
@@ -88,6 +105,10 @@ def make_handler(settings):
                     name: {"params": spec["params"], "unit": spec["unit"], "formula": spec["formula"]}
                     for name, spec in gravity.CALCULATIONS.items()
                 }})
+            if path == "/api/findings":
+                return self._handle_list_findings(parse_qs(parsed.query))
+            if path.startswith("/api/findings/"):
+                return self._handle_get_finding(path[len("/api/findings/"):])
             if path.startswith("/api/"):
                 return self._send_json(404, {"error": "not found"})
             return self._serve_static(path)
@@ -107,6 +128,8 @@ def make_handler(settings):
                 return self._handle_create_source(body)
             if path == "/api/engines/gravity":
                 return self._handle_gravity(body)
+            if path == "/api/findings":
+                return self._handle_create_finding(body)
             return self._send_json(404, {"error": "not found"})
 
         def _handle_register(self, body):
@@ -167,6 +190,46 @@ def make_handler(settings):
             except gravity.GravityError as exc:
                 return self._send_json(400, {"error": str(exc)})
             return self._send_json(200, result)
+
+        def _handle_create_finding(self, body):
+            user = self._current_user()
+            if user is None:
+                return self._send_json(401, {"error": "not authenticated"})
+            engine = body.get("engine", "")
+            compute_fn = ENGINE_COMPUTE.get(engine)
+            if compute_fn is None:
+                return self._send_json(400, {"error": "unknown engine: %s (expected one of %s)" %
+                                              (engine, ", ".join(ENGINE_COMPUTE))})
+            calculation = body.get("calculation", "")
+            inputs = body.get("inputs", {})
+            try:
+                # Always recompute server-side - a finding's whole point
+                # is that the result is what the engine actually produced,
+                # never a number the client merely claims it got.
+                computed = compute_fn(calculation, inputs)
+            except ENGINE_ERRORS as exc:
+                return self._send_json(400, {"error": str(exc)})
+            finding = current_provenance_store().record_finding(
+                engine=engine, calculation=calculation, inputs=inputs,
+                result=computed["result"], unit=computed["unit"], formula=computed["formula"],
+                evidence_status=computed["evidence_status"], submitted_by=user["id"],
+            )
+            return self._send_json(201, {"finding": finding})
+
+        def _handle_list_findings(self, query_params):
+            engine = (query_params.get("engine") or [None])[0]
+            findings = current_provenance_store().list_all(engine=engine)
+            return self._send_json(200, {"findings": findings})
+
+        def _handle_get_finding(self, raw_id):
+            try:
+                finding_id = int(raw_id)
+            except ValueError:
+                return self._send_json(404, {"error": "not found"})
+            finding = current_provenance_store().get_by_id(finding_id)
+            if finding is None:
+                return self._send_json(404, {"error": "not found"})
+            return self._send_json(200, {"finding": finding})
 
         def _serve_static(self, path):
             if path == "/":

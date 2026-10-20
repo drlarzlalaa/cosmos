@@ -6,7 +6,7 @@
 [ARCHITECTURE.md](../ARCHITECTURE.md) for the full plan.
 
 Sub-modules:
-- `data-ingestion/`
+- `data-ingestion/` — implemented
 - `scientific-data-connectors/`
 - `data-validation/`
 - `data-normalization/`
@@ -17,4 +17,4 @@ Sub-modules:
 - `observation-registry/`
 - `experiment-registry/`
 - `model-registry/`
-- `data-provenance/`
+- `data-provenance/` — implemented

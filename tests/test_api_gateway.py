@@ -139,6 +139,50 @@ class ApiGatewayTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertIn("force", data["calculations"])
 
+    def test_create_finding_requires_auth(self):
+        status, data = _request("POST", self.base + "/api/findings", {
+            "engine": "physics-engine/gravity", "calculation": "force",
+            "inputs": {"mass1_kg": 1000, "mass2_kg": 1000, "distance_m": 1},
+        })
+        self.assertEqual(status, 401)
+
+    def test_create_finding_recomputes_server_side(self):
+        token = self._register("finding-author@example.com")
+        # Client claims a wrong result; the server must ignore it and
+        # recompute for real rather than trusting what's handed in.
+        status, data = _request("POST", self.base + "/api/findings", {
+            "engine": "physics-engine/gravity", "calculation": "force",
+            "inputs": {"mass1_kg": 1000, "mass2_kg": 1000, "distance_m": 1},
+            "result": 999999999,
+        }, token=token)
+        self.assertEqual(status, 201)
+        finding = data["finding"]
+        self.assertNotEqual(finding["result"], 999999999)
+        self.assertAlmostEqual(finding["result"], 6.6743e-5, places=8)
+        self.assertEqual(finding["evidence_status"], "established")
+
+        status, data = _request("GET", self.base + "/api/findings/%d" % finding["id"])
+        self.assertEqual(status, 200)
+        self.assertEqual(data["finding"]["inputs"]["mass1_kg"], 1000)
+
+        status, data = _request("GET", self.base + "/api/findings?engine=physics-engine/gravity")
+        self.assertEqual(status, 200)
+        self.assertTrue(any(f["id"] == finding["id"] for f in data["findings"]))
+
+    def test_create_finding_unknown_engine_rejected(self):
+        token = self._register("bad-engine@example.com")
+        status, data = _request("POST", self.base + "/api/findings", {
+            "engine": "time-travel-engine/flux", "calculation": "x", "inputs": {},
+        }, token=token)
+        self.assertEqual(status, 400)
+
+    def test_create_finding_bad_calculation_rejected(self):
+        token = self._register("bad-calc@example.com")
+        status, data = _request("POST", self.base + "/api/findings", {
+            "engine": "physics-engine/gravity", "calculation": "teleportation", "inputs": {},
+        }, token=token)
+        self.assertEqual(status, 400)
+
 
 if __name__ == "__main__":
     unittest.main()

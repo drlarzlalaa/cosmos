@@ -38,6 +38,10 @@ This is a young project. What's real today:
   frontend pipeline works end to end with a real engine. It's one
   calculation module, not "the physics engine done" — see
   [ROADMAP.md](ROADMAP.md).
+- Provenance for engine output (`data-platform/data-provenance`): a
+  signed-in user can save a gravity result as a finding, but the
+  server always recomputes it first — a client's claimed result is
+  never trusted or stored, only the inputs that produced it.
 - A small API gateway (`backend/api-gateway`) serving both the JSON
   API and the static frontend.
 - A sqlite-backed `storage/relational-database`.

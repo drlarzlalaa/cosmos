@@ -14,6 +14,10 @@
 label { font-size: 13px; color: var(--muted); }
 .result-box { margin-top: 14px; padding: 14px; border-radius: 10px; background: #0d1220;
   border: 1px solid var(--border); font-family: monospace; font-size: 15px; }
+.source { border-bottom: 1px solid var(--border); padding: 16px 0; }
+.source:last-child { border-bottom: none; }
+.source h3 { margin: 6px 0 4px; font-family: monospace; font-size: 15px; }
+.source .meta { font-size: 12.5px; }
 </style>
 </head>
 <body>
@@ -41,6 +45,22 @@ label { font-size: 13px; color: var(--muted); }
     <div class="error" id="calc-error"></div>
     <button id="calc-submit">Compute</button>
     <div class="result-box" id="result" style="display:none"></div>
+    <div id="save-row" style="display:none;margin-top:10px">
+      <button class="secondary" id="save-finding">Save as a provenance-tracked finding</button>
+      <span class="muted" id="save-note" style="margin-left:10px"></span>
+    </div>
+    <p class="muted" id="save-signed-out-note" style="display:none;margin-top:10px">
+      <a href="/login/">Sign in</a> to save a result as a finding.
+    </p>
+  </div>
+
+  <div class="panel" style="margin-top:18px">
+    <h2>Recently saved findings</h2>
+    <p class="muted">
+      Every finding here was recomputed by the server from its stored inputs
+      before being saved - never taken on a user's word.
+    </p>
+    <div id="findings-list"></div>
   </div>
 </div>
 <script type="module" src="explorer.js"></script>

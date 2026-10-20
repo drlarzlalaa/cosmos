@@ -14,6 +14,7 @@ _BACKEND_DIRS = [
     "data-platform/data-ingestion",
     "backend/search-service",
     "engines/physics-engine/gravity",
+    "data-platform/data-provenance",
     "backend/api-gateway",
 ]
 
